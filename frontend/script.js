@@ -1,5 +1,5 @@
 import * as moveValidator from "./validMoves.js";
-import { isChecked } from "./isChecked.js";
+import { isChecked , checkmate} from "./isChecked.js";
 
 const board = document.getElementById("board")
 const turnText = document.getElementById("turn")
@@ -76,6 +76,16 @@ function drawBoard() {
 
             board.appendChild(sq)
 
+        }
+    }
+    if(checkKingPos!=null)
+    console.log((state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()));
+    if(check && checkmate(state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase())){
+        if(state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()){
+            window.open("black.html", "_blank");
+        }
+        else{
+            window.open("white.html", "_blank");
         }
     }
 }
@@ -220,7 +230,7 @@ function clickSquare(e) {
                     return;
                 }
             }
-            
+            check = false;
             turn = turn === "white" ? "black" : "white"
             
             turnText.innerText = "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1)
