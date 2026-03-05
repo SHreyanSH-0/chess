@@ -1,4 +1,5 @@
 import * as moveValidator from "./validMoves.js";
+import { isChecked } from "./isChecked.js";
 
 const board = document.getElementById("board")
 const turnText = document.getElementById("turn")
@@ -7,6 +8,8 @@ const turnText = document.getElementById("turn")
 let selected = null
 let turn = "white"
 let moves = [];
+let check = false;
+
 const pieces = {
     r: "♜",
     n: "♞",
@@ -47,8 +50,18 @@ function drawBoard() {
 
             sq.dataset.row = r
             sq.dataset.col = c
+            sq.id = r + "" + c;
 
             let piece = state[r][c]
+
+            if(piece=="K" && isChecked(r,c)) {
+                sq.classList.add("checked"); 
+                check = true;
+            }
+            if(piece=="k" && isChecked(r,c)) {
+                sq.classList.add("checked"); 
+                check = true;
+            }
 
             if (piece != "") sq.textContent = pieces[piece]
 
@@ -64,8 +77,19 @@ function clickSquare(e) {
 
     let r = parseInt(e.target.dataset.row)
     let c = parseInt(e.target.dataset.col)
-
-    if (selected == null) {
+    
+    if (selected == null||((turn == "white" && state[r][c] == state[r][c].toUpperCase()&&state[r][c]!="") || (turn == "black" && state[r][c] ==state[r][c].toLowerCase()&&state[r][c]!="" ))) {
+        
+        if(selected!=null){
+            let element = document.querySelector(".selected");
+            if(element!=null)
+            element.classList.remove("selected");
+            for(let v of moves){
+                let element = document.getElementById(v[0] + "" + v[1]);
+                element.classList.remove("can");
+            }
+            moves = [];
+        }
 
         let piece = state[r][c]
 
@@ -77,11 +101,20 @@ function clickSquare(e) {
         selected = { r, c }
         if(piece=="p"||piece=="P") moves = moveValidator.pawnMove(r,c);
         if(piece=="R"||piece=="r") moves = moveValidator.rookMove(r,c);
+        if(piece=="N"||piece=="n") moves = moveValidator.knightMove(r,c);
+        if(piece=="B"||piece=="b") moves = moveValidator.bishopMove(r,c);
+        if(piece=="Q"||piece=="q") moves = moveValidator.queenMove(r,c);
+        if(piece=="K"||piece=="k") moves = moveValidator.kingMove(r,c);
         
         console.log(moves);
-        e.target.classList.add("selected")
-
-    } else {
+        for(let v of moves){
+            let element = document.getElementById(v[0] + "" + v[1]);
+            element.classList.add("can");
+        }
+        let element = document.getElementById(r + "" + c);
+        element.classList.add("selected");
+    }
+     else {
 
         if(moves.find(e => e[0] == r && e[1] == c)) {            
             let from = selected
@@ -110,4 +143,4 @@ function clickSquare(e) {
 
 drawBoard()
 
-export {state};
+export {state , check};
