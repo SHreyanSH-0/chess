@@ -10,6 +10,10 @@ let turn = "white"
 let moves = [];
 let check = false;
 let checkKingPos = null;
+let canBlackCastleShort = true;
+let canBlackCastleLong = true;
+let canWhiteCastleShort = true;
+let canWhiteCastleLong = true;
 
 const pieces = {
     r: "♜",
@@ -123,33 +127,99 @@ function clickSquare(e) {
             let from = selected
             let piece = state[from.r][from.c]
             let tar = state[r][c];
-            if(check){
-                let row ,col;
-                if(piece=="K"||piece == "k") {
-                    row = r;
-                    col = c;
+            // if(check){
+            //     let row ,col;
+            //     if(piece=="K"||piece == "k") {
+            //         row = r;
+            //         col = c;
+            //     }
+            //     else{
+            //         row = checkKingPos[0];
+            //         col = checkKingPos[1];
+            //     }
+            //     state[r][c] = piece;
+            //     state[from.r][from.c] = "";
+            //     if(isChecked(row,col)) {
+            //         state[r][c] = tar;
+            //         state[from.r][from.c] = piece;
+            //         moves = [];
+            //         selected = null;
+            //         drawBoard()
+            //         return;
+            //     }
+            //     else check = false;
+            // }
+
+            if(turn == "white"){
+                if(piece == "R" && c == 0) canWhiteCastleLong = false; 
+                if(piece == "R" && c == 7) canWhiteCastleShort = false; 
+                if(piece == "K" && r == 7&& c== 2&&canWhiteCastleLong) {
+                    state[7][0] = "";
+                    state[7][3] = "R";
+                    canWhiteCastleLong = false;
+                    canWhiteCastleShort = false;
                 }
-                else{
-                    row = checkKingPos[0];
-                    col = checkKingPos[1];
+                else if(piece == "K" && r == 7&& c== 6&&canWhiteCastleShort){
+                    state[7][7] = "";
+                    state[7][5] = "R";
+                    canWhiteCastleLong = false;
+                    canWhiteCastleShort = false;
                 }
-                state[r][c] = piece;
-                state[from.r][from.c] = "";
-                if(isChecked(row,col)) {
-                    state[r][c] = tar;
-                    state[from.r][from.c] = piece;
-                    moves = [];
-                    selected = null;
-                    drawBoard()
-                    return;
+                else if(piece=="K"){
+                    canWhiteCastleLong = false;
+                    canWhiteCastleShort = false;
                 }
-                else check = false;
             }
+            else{
+                if(piece == "r" && c == 0) canBlackCastleLong = false; 
+                if(piece == "r" && c == 7) canBlackCastleShort = false; 
             
+                if(piece == "k" && r == 0&& c== 2&&canBlackCastleLong) {
+                    state[0][0] = "";
+                    state[0][3] = "r";
+                    canBlackCastleLong = false;
+                    canBlackCastleShort = false;
+                }
+                else if(piece == "k" && r == 0&& c== 6&&canBlackCastleShort){
+                    state[0][7] = "";
+                    state[0][5] = "r";
+                    canBlackCastleLong = false;
+                    canBlackCastleShort = false;
+                }
+                else if(piece=="k"){
+                    canBlackCastleLong = false;
+                    canBlackCastleShort = false;
+                }
+            }
             state[from.r][from.c] = ""
             state[r][c] = piece
             
+            let wk, bk;
+
+            for(let i = 0;i<8;i++){
+                for(let j = 0;j<8;j++){
+                    if(state[i][j] == "K") wk = [i,j];
+                    if(state[i][j] == "k") bk = [i,j];
+                }
+            }
             selected = null
+
+            if(turn=="white"){
+                if(isChecked(wk[0],wk[1])){
+                    state[r][c] = tar;
+                    state[from.r][from.c] = piece;
+                    drawBoard()
+                    return;
+                }
+            }
+            else{
+                if(isChecked(bk[0],bk[1])){
+                    state[r][c] = tar;
+                    state[from.r][from.c] = piece;
+                    drawBoard()
+                    return;
+                }
+            }
             
             turn = turn === "white" ? "black" : "white"
             
@@ -167,6 +237,35 @@ function clickSquare(e) {
     }
 }
 
-drawBoard()
-
-export {state , check};
+function canCastle(r,c,rc){
+    
+    if(state[r][c]=="K"){
+        if(rc==0&&canWhiteCastleLong){
+            if(state[7][1]==""&&state[7][2]==""&&state[7][3]==""){
+                return true;
+            }
+        }
+        else if(rc==7&&canWhiteCastleShort){
+            if(state[7][6]==""&&state[7][5]==""){
+                return true;
+            }
+        }
+    }
+    else{
+        if(rc==0&&canBlackCastleLong){
+            if(state[0][1]==""&&state[0][2]==""&&state[0][3]==""){
+                return true;
+            }
+        }
+        else if(rc==7&&canBlackCastleShort){
+            if(state[0][6]==""&&state[0][5]==""){
+                return true;
+            }
+        }
+    }
+        return false;
+    }
+    
+    drawBoard()
+    
+export {state , check, canBlackCastleLong, canBlackCastleShort,canWhiteCastleLong,canWhiteCastleShort,canCastle};

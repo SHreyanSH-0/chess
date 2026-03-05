@@ -1,5 +1,5 @@
-import { state, check } from "./script.js";
-
+import { state, check ,canBlackCastleLong,canBlackCastleShort,canWhiteCastleLong,canWhiteCastleShort,canCastle} from "./script.js";
+import { isChecked } from "./isChecked.js";
 function pawnMove(r,c){
     let piece = state[r][c];
     const moves = [];
@@ -163,6 +163,59 @@ function kingMove(r,c){
     let moves = [];
     let piece = state[r][c];
 
+    if(piece=="k"){
+        if(canBlackCastleLong&&canCastle(r,c,0)){
+            state[0][2] = "k";
+            state[0][3] = "r";
+            state[0][0] = "";
+            state[0][1] = "";
+            state[0][4] = "";
+            if(!isChecked(0,2)) moves.push([0,2]);
+            state[0][2] = "";
+            state[0][3] = "";
+            state[0][0] = "r";
+            state[0][1] = "";
+            state[0][4] = "k";
+        }
+        if(canBlackCastleShort&&canCastle(r,c,7)) {
+            state[0][6] = "k";
+            state[0][5] = "r";
+            state[0][7] = "";
+            state[0][4] = "";
+            if(!isChecked(0,6)) moves.push([0,6]);
+            state[0][6] = "";
+            state[0][5] = "";
+            state[0][7] = "r";
+            state[0][4] = "k";
+        }
+    }
+    else if(piece == "K"){
+        if(canWhiteCastleLong&&canCastle(r,c,0)) {
+            state[7][2] = "K";
+            state[7][3] = "R";
+            state[7][0] = "";
+            state[7][1] = "";
+            state[7][4] = "";
+            if(!isChecked(7,2)) moves.push([7,2]);
+            state[7][2] = "";
+            state[7][3] = "";
+            state[7][0] = "R";
+            state[7][1] = "";
+            state[7][4] = "K";
+        }
+        if(canWhiteCastleShort&&canCastle(r,c,7)) {
+            state[7][6] = "K";
+            state[7][5] = "R";
+            state[7][7] = "";
+            state[7][4] = "";
+            if(!isChecked(7,6)) moves.push([7,6]);
+            state[7][6] = "";
+            state[7][5] = "";
+            state[7][7] = "R";
+            state[7][4] = "K";
+        }
+    }
+
     let x,y;
 
     for(let i = 0;i<8;i++){
@@ -182,10 +235,28 @@ function kingMove(r,c){
             let i = cord[0], j = cord[1];
             let dist = Math.pow(x-i,2) + Math.pow(y - j , 2);
             if(dist <= 2) continue;
-            console.log(dist);
-            if(piece==piece.toUpperCase() && tar == tar.toLowerCase()) moves.push([cord[0],cord[1]]);
-            else if(piece==piece.toLowerCase() && tar == tar.toUpperCase()) moves.push([cord[0],cord[1]]);
-            else if(tar=="") moves.push([cord[0],cord[1]]);
+            if(piece==piece.toUpperCase() && tar == tar.toLowerCase()){
+                state[r][c] = "";
+                state[cord[0]][cord[1]] = piece;
+                if(!isChecked(cord[0],cord[1])) moves.push([cord[0],cord[1]]);
+                state[r][c] = piece;
+                state[cord[0]][cord[1]] = tar;
+                
+            } 
+            else if(piece==piece.toLowerCase() && tar == tar.toUpperCase()){
+                state[r][c] = "";
+                state[cord[0]][cord[1]] = piece;
+                if(!isChecked(cord[0],cord[1])) moves.push([cord[0],cord[1]]);
+                state[r][c] = piece;
+                state[cord[0]][cord[1]] = tar;
+            } 
+            else if(tar==""){
+                state[r][c] = "";
+                state[cord[0]][cord[1]] = piece;
+                if(!isChecked(cord[0],cord[1])) moves.push([cord[0],cord[1]]);
+                state[r][c] = piece;
+                state[cord[0]][cord[1]] = tar;
+            } 
         }
     }
     return moves;
