@@ -9,6 +9,7 @@ let selected = null
 let turn = "white"
 let moves = [];
 let check = false;
+let checkKingPos = null;
 
 const pieces = {
     r: "♜",
@@ -57,10 +58,12 @@ function drawBoard() {
             if(piece=="K" && isChecked(r,c)) {
                 sq.classList.add("checked"); 
                 check = true;
+                checkKingPos = [r,c];
             }
             if(piece=="k" && isChecked(r,c)) {
                 sq.classList.add("checked"); 
                 check = true;
+                checkKingPos = [r,c];
             }
 
             if (piece != "") sq.textContent = pieces[piece]
@@ -119,6 +122,29 @@ function clickSquare(e) {
         if(moves.find(e => e[0] == r && e[1] == c)) {            
             let from = selected
             let piece = state[from.r][from.c]
+            let tar = state[r][c];
+            if(check){
+                let row ,col;
+                if(piece=="K"||piece == "k") {
+                    row = r;
+                    col = c;
+                }
+                else{
+                    row = checkKingPos[0];
+                    col = checkKingPos[1];
+                }
+                state[r][c] = piece;
+                state[from.r][from.c] = "";
+                if(isChecked(row,col)) {
+                    state[r][c] = tar;
+                    state[from.r][from.c] = piece;
+                    moves = [];
+                    selected = null;
+                    drawBoard()
+                    return;
+                }
+                else check = false;
+            }
             
             state[from.r][from.c] = ""
             state[r][c] = piece
