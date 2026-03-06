@@ -1,8 +1,11 @@
 import * as moveValidator from "./validMoves.js";
 import { isChecked , checkmate} from "./isChecked.js";
+import { moveHistory } from "./game.js";
 
 const board = document.getElementById("board")
+const undo = document.getElementById("undo")
 const turnText = document.getElementById("turn")
+const socket = io("http://localhost:3000");
 
 
 let selected = null
@@ -14,6 +17,17 @@ let canBlackCastleShort = true;
 let canBlackCastleLong = true;
 let canWhiteCastleShort = true;
 let canWhiteCastleLong = true;
+
+let state = [
+        ["r", "n", "b", "q", "k", "b", "n", "r"],
+        ["p", "p", "p", "p", "p", "p", "p", "p"],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["", "", "", "", "", "", "", ""],
+        ["P", "P", "P", "P", "P", "P", "P", "P"],
+        ["R", "N", "B", "Q", "K", "B", "N", "R"]
+    ];
 
 const pieces = {
     r: "♜",
@@ -29,20 +43,30 @@ const pieces = {
     K: "♔",
     P: "♙"
 }
+socket.on("state",(game)=>{
 
-let state = [
-    ["r", "n", "b", "q", "k", "b", "n", "r"],
-    ["p", "p", "p", "p", "p", "p", "p", "p"],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["", "", "", "", "", "", "", ""],
-    ["P", "P", "P", "P", "P", "P", "P", "P"],
-    ["R", "N", "B", "Q", "K", "B", "N", "R"]
-]
+    state =  game.state;
+    turn =  game.turn;
 
-function drawBoard() {
+    turnText.innerText =
+        "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1);
+
+    drawBoard();
+
+});
+async function drawBoard() {
+
+    // let res = await fetch("http://localhost:3000/chess/currentState");
+    // let data = await res.json();
+    // console.log(data);
+    // state = data.state;
+
+    // turn = data.turn;
+
+    console.log(state);
+
     board.innerHTML = ""
+    undo.innerHTML = ""
 
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -78,14 +102,23 @@ function drawBoard() {
 
         }
     }
+
+    if(moveHistory.length>0){
+        let undoButton = document.createElement("button");
+        undoButton.innerText = "Undo";
+        undoButton.classList.add("undo-button");
+        undoButton.addEventListener("click",prevMove);
+        undo.append(undoButton);
+    }
+
     if(checkKingPos!=null)
     console.log((state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()));
     if(check && checkmate(state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase())){
         if(state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()){
-            window.open("black.html", "_blank");
+            window.location.href = "black.html";
         }
         else{
-            window.open("white.html", "_blank");
+            window.location.href = "white.html";
         }
     }
 }
@@ -132,46 +165,33 @@ function clickSquare(e) {
         element.classList.add("selected");
     }
      else {
-
         if(moves.find(e => e[0] == r && e[1] == c)) {            
             let from = selected
             let piece = state[from.r][from.c]
             let tar = state[r][c];
-            // if(check){
-            //     let row ,col;
-            //     if(piece=="K"||piece == "k") {
-            //         row = r;
-            //         col = c;
-            //     }
-            //     else{
-            //         row = checkKingPos[0];
-            //         col = checkKingPos[1];
-            //     }
-            //     state[r][c] = piece;
-            //     state[from.r][from.c] = "";
-            //     if(isChecked(row,col)) {
-            //         state[r][c] = tar;
-            //         state[from.r][from.c] = piece;
-            //         moves = [];
-            //         selected = null;
-            //         drawBoard()
-            //         return;
-            //     }
-            //     else check = false;
-            // }
 
             if(turn == "white"){
                 if(piece == "R" && c == 0) canWhiteCastleLong = false; 
                 if(piece == "R" && c == 7) canWhiteCastleShort = false; 
                 if(piece == "K" && r == 7&& c== 2&&canWhiteCastleLong) {
-                    state[7][0] = "";
-                    state[7][3] = "R";
+                    updateBoard([7,0],[7,3],turn,{
+                        "from" : [7,0],
+                        "to"   : [7,3],
+                        "piece": "R",
+                        "tar"  : "",
+                        "turn" : turn,
+                    });
                     canWhiteCastleLong = false;
                     canWhiteCastleShort = false;
                 }
                 else if(piece == "K" && r == 7&& c== 6&&canWhiteCastleShort){
-                    state[7][7] = "";
-                    state[7][5] = "R";
+                    updateBoard([7,7],[7,5],turn,{
+                        "from" : [7,7],
+                        "to"   : [7,5],
+                        "piece": "R",
+                        "tar"  : "",
+                        "turn" : turn,
+                    });
                     canWhiteCastleLong = false;
                     canWhiteCastleShort = false;
                 }
@@ -185,14 +205,24 @@ function clickSquare(e) {
                 if(piece == "r" && c == 7) canBlackCastleShort = false; 
             
                 if(piece == "k" && r == 0&& c== 2&&canBlackCastleLong) {
-                    state[0][0] = "";
-                    state[0][3] = "r";
+                    updateBoard([0,0],[0,3],turn,{
+                        "from" : [0,0],
+                        "to"   : [0,3],
+                        "piece": "r",
+                        "tar"  : "",
+                        "turn" : turn,
+                    });
                     canBlackCastleLong = false;
                     canBlackCastleShort = false;
                 }
                 else if(piece == "k" && r == 0&& c== 6&&canBlackCastleShort){
-                    state[0][7] = "";
-                    state[0][5] = "r";
+                    updateBoard([0,7],[0,5],turn,{
+                        "from" : [0,7],
+                        "to"   : [0,5],
+                        "piece": "r",
+                        "tar"  : "",
+                        "turn" : turn,
+                    });
                     canBlackCastleLong = false;
                     canBlackCastleShort = false;
                 }
@@ -218,7 +248,7 @@ function clickSquare(e) {
                 if(isChecked(wk[0],wk[1])){
                     state[r][c] = tar;
                     state[from.r][from.c] = piece;
-                    drawBoard()
+                    drawBoard();
                     return;
                 }
             }
@@ -226,23 +256,34 @@ function clickSquare(e) {
                 if(isChecked(bk[0],bk[1])){
                     state[r][c] = tar;
                     state[from.r][from.c] = piece;
-                    drawBoard()
+                    drawBoard();
                     return;
                 }
             }
+            
+            let currentMove = {
+                "from" : [from.r,from.c],
+                "to"   : [r,c],
+                "piece": piece,
+                "tar"  : tar,
+                "turn" : turn,
+            }
+            
             check = false;
             turn = turn === "white" ? "black" : "white"
             
-            turnText.innerText = "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1)
+            moveHistory.push(currentMove);
             
-            drawBoard()
+            updateBoard([from.r,from.c],[r,c],turn,currentMove);
+            
+            turnText.innerText = "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1)
         }
         else{
             moves = [];
             selected = null;
-            drawBoard()
-            return;
         }
+
+        drawBoard();
 
     }
 }
@@ -250,24 +291,24 @@ function clickSquare(e) {
 function canCastle(r,c,rc){
     
     if(state[r][c]=="K"){
-        if(rc==0&&canWhiteCastleLong){
+        if(rc==0&&canWhiteCastleLong&&state[7][0]=="R"){
             if(state[7][1]==""&&state[7][2]==""&&state[7][3]==""){
                 return true;
             }
         }
-        else if(rc==7&&canWhiteCastleShort){
+        else if(rc==7&&canWhiteCastleShort&&state[7][7]=="R"){
             if(state[7][6]==""&&state[7][5]==""){
                 return true;
             }
         }
     }
     else{
-        if(rc==0&&canBlackCastleLong){
+        if(rc==0&&canBlackCastleLong&&state[0][0]=="r"){
             if(state[0][1]==""&&state[0][2]==""&&state[0][3]==""){
                 return true;
             }
         }
-        else if(rc==7&&canBlackCastleShort){
+        else if(rc==7&&canBlackCastleShort&&state[0][7]=="r"){
             if(state[0][6]==""&&state[0][5]==""){
                 return true;
             }
@@ -276,6 +317,50 @@ function canCastle(r,c,rc){
         return false;
     }
     
-    drawBoard()
+    async function prevMove(){
+        if(moveHistory.length===0) return;
+        // let lastMove = moveHistory[moveHistory.length - 1];
+        // let res = await fetch("http://localhost:3000/chess/update", {
+        //     method : "POST",
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     },
+        //     body : JSON.stringify({from : [],to :[],turn : "",undo : true,currMove:[]}),
+        // });
+        // let data = await res.json();
+        // state = data.state;
+        // turn = data.turn;
+        socket.emit("move",{
+            from : [],
+            to : [],
+            t : [],
+            undo:true,
+            currentMove:[],
+        });
+        moveHistory.pop();
+        turnText.innerText = "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1)
+
+    }
+
+    async function updateBoard(from,to,t,currentMove) {
+        // let res = await fetch("http://localhost:3000/chess/update", {
+        //     method : "POST",
+        //     headers: {
+        //         "Content-Type": "application/json"
+        //     },
+        //     body : JSON.stringify({from,to,t,undo:false,currentMove}),
+        // });
+        // let data = await res.json();
+        // state = data.state;
+        // turn = data.turn;
+
+        socket.emit("move",{
+            from,
+            to,
+            t,
+            undo:false,
+            currentMove,
+        });
+    }
     
 export {state , check, canBlackCastleLong, canBlackCastleShort,canWhiteCastleLong,canWhiteCastleShort,canCastle};

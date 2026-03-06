@@ -7,7 +7,7 @@ function pawnMove(r,c){
         let startr = r - 1;
         let startc = c - 1;
         if(r==6){
-            if(state[r-2][c] == ""&&state[5][c]==""){
+            if(state[r-2][c] == ""){
                 moves.push([r-2,c]);
             }
         }
@@ -28,7 +28,7 @@ function pawnMove(r,c){
         let startr = r + 1;
         let startc = c + 1;
         if(r==1){
-            if(state[r+2][c] == ""&&state[2][c]==""){
+            if(state[r+2][c] == ""){
                 moves.push([r+2,c]);
             }
         }

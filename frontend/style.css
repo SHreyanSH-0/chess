@@ -56,3 +56,28 @@ body {
 .checked {
     background-color: rgba(255,0,0,0.6);
 }
+
+#undo{
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 480px;
+}
+
+.undo-button{
+    background-color: #f0d9b5;
+    height: 60px;
+    width: 60px;
+    border-radius: 15px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+.outer-div{
+    /* width: 600px; */
+    margin: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}

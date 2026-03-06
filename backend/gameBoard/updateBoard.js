@@ -1,0 +1,29 @@
+let game = require("./game");
+
+function updateBoard(from,to,nextTurn){
+    let board = game.state;
+    let piece = board[from[0]][from[1]];
+    board[from[0]][from[1]] = "";
+    board[to[0]][to[1]] = piece;
+    game.turn = nextTurn;
+    game.state = board;
+}
+
+function undoMove(){
+    let t = null;
+    
+    console.log(game.mH);
+    while(game.mH.length>0){
+        if((t==null ||( t == (game.mH[game.mH.length - 1]).turn))){
+
+            let lastMove = game.mH.pop();
+            game.state[lastMove.from[0]][lastMove.from[1]] = lastMove.piece;
+            game.state[lastMove.to[0]][lastMove.to[1]] = lastMove.tar;
+            game.turn = lastMove.turn;
+            t = lastMove.turn;
+        }
+        else break;
+    }
+}
+
+module.exports = {updateBoard,undoMove}

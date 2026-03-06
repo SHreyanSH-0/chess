@@ -8,9 +8,15 @@
 <body>
 
 <h1>2 Player Chess</h1>
-<div id="turn">Turn: White</div>
-<div id="board"></div>
+<div class="outer-div"> 
+    <div>
+        <div id="turn">Turn: White</div>
+        <div id="board"></div>
+    </div>
+    <div id="undo"></div>
+</div>
 
 <script type="module" src="script.js"></script>
+<script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
 </body>
 </html>
