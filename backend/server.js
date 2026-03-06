@@ -6,7 +6,7 @@ const {Server} = require("socket.io");
 const http = require("http");
 
 let game = require("./gameBoard/game");
-let {updateBoard,undoMove} = require("./gameBoard/updateBoard")
+let {updateBoard,undoMove,resetBoard} = require("./gameBoard/updateBoard")
 
 
 dotenv.config();
@@ -58,6 +58,12 @@ io.on("connection",(socket)=>{
             console.log(currentMove);
         }
 
+        io.emit("state",game);
+    });
+
+    socket.on("reset",(data)=>{
+        resetBoard();
+        console.log(game);
         io.emit("state",game);
     });
 

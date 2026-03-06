@@ -6,6 +6,7 @@ const board = document.getElementById("board")
 const undo = document.getElementById("undo")
 const turnText = document.getElementById("turn")
 const socket = io("https://chess-124102054.onrender.com");
+// const socket = io("http://localhost:3000/");
 
 
 let selected = null
@@ -110,15 +111,58 @@ async function drawBoard() {
         undoButton.addEventListener("click",prevMove);
         undo.append(undoButton);
     }
+    
+    let restart = document.createElement("button");
+    restart.innerText = "Restart";
+    restart.classList.add("restart-button");
+    restart.addEventListener("click",reset);
+    undo.append(restart);
 
     if(checkKingPos!=null)
     console.log((state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()));
     if(check && checkmate(state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase())){
         if(state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()){
-            window.location.href = "black.html";
+            //black wins
+            board.innerHTML = `
+                <div style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    width:480px;
+                    background:#111;
+                ">
+                    <h1 style="
+                        color:#00ffcc;
+                        font-size:48px;
+                        font-family:Arial, sans-serif;
+                        letter-spacing:3px;
+                        text-shadow:0 0 15px #00ffcc;
+                    ">
+                        BLACK WINS
+                    </h1>
+                </div>
+            `;
         }
         else{
-            window.location.href = "white.html";
+            board.innerHTML = `
+                <div style="
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    width:480px;
+                    background:#111;
+                ">
+                    <h1 style="
+                        color:#ffd700;
+                        font-size:48px;
+                        font-family:Arial, sans-serif;
+                        letter-spacing:3px;
+                        text-shadow:0 0 15px #ffd700;
+                    ">
+                        WHITE WINS
+                    </h1>
+                </div>
+            `;
         }
     }
 }
@@ -282,9 +326,6 @@ function clickSquare(e) {
             moves = [];
             selected = null;
         }
-
-        drawBoard();
-
     }
 }
 
@@ -340,6 +381,10 @@ function canCastle(r,c,rc){
         moveHistory.pop();
         turnText.innerText = "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1)
 
+    }
+    async function reset(){
+        socket.emit("reset",{});
+        turnText.innerText = "Turn: White"
     }
 
     async function updateBoard(from,to,t,currentMove) {

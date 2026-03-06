@@ -62,6 +62,7 @@ body {
     align-items: center;
     justify-content: center;
     height: 480px;
+    flex-direction: column;
 }
 
 .undo-button{
@@ -71,6 +72,19 @@ body {
     border-radius: 15px;
     font-size: 16px;
     cursor: pointer;
+    margin: 10px;
+}
+.restart-button{
+    background-color: #f0d9b5;
+    height: 60px;
+    width: 60px;
+    border-radius: 15px;
+    font-size: 16px;
+    margin: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .outer-div{

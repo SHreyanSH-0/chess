@@ -8,6 +8,25 @@ function updateBoard(from,to,nextTurn){
     game.turn = nextTurn;
     game.state = board;
 }
+function resetBoard(){
+    let hold = {
+        "state" : [
+                    ["r", "n", "b", "q", "k", "b", "n", "r"],
+                    ["p", "p", "p", "p", "p", "p", "p", "p"],
+                    ["", "", "", "", "", "", "", ""],
+                    ["", "", "", "", "", "", "", ""],
+                    ["", "", "", "", "", "", "", ""],
+                    ["", "", "", "", "", "", "", ""],
+                    ["P", "P", "P", "P", "P", "P", "P", "P"],
+                    ["R", "N", "B", "Q", "K", "B", "N", "R"]
+                ],
+        "turn" : "white",
+        "mH" : [],
+    }
+    game.state = hold.state;
+    game.turn = hold.turn;
+    game.mH = hold.mH;
+}
 
 function undoMove(){
     let t = null;
@@ -26,4 +45,4 @@ function undoMove(){
     }
 }
 
-module.exports = {updateBoard,undoMove}
+module.exports = {updateBoard,undoMove,resetBoard}

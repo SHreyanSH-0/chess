@@ -1,5 +1,5 @@
 let game = require("../gameBoard/game");
-let {updateBoard,undoMove} = require("../gameBoard/updateBoard")
+let {updateBoard,undoMove,resetBoard} = require("../gameBoard/updateBoard")
 
 function currentState(req,res){
     try{
