@@ -77,6 +77,10 @@ io.on("connection",(socket)=>{
 
 });
 
+app.get("/",(req,res)=>{
+    res.send("HELLOW");
+})
+
 server.listen(PORT,()=>{
     console.log("server running");
 });

@@ -5,7 +5,7 @@ import { moveHistory } from "./game.js";
 const board = document.getElementById("board")
 const undo = document.getElementById("undo")
 const turnText = document.getElementById("turn")
-const socket = io("http://localhost:3000");
+const socket = io("https://chess-124102054.onrender.com");
 
 
 let selected = null
