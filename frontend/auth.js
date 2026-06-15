@@ -4,7 +4,7 @@ async function Register(){
     const password = document.getElementById('password').value;
     try{
 
-        const res = await fetch("http://localhost:3000/register", {
+        const res = await fetch("https://chess-124102054.onrender.com/register", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
@@ -35,7 +35,7 @@ async function Login(){
     const password = document.getElementById('password').value;
     try{
 
-        const res = await fetch("http://localhost:3000/login", {
+        const res = await fetch("https://chess-124102054.onrender.com/login", {
             method: "POST",
             headers: {
                 "Content-Type": "application/json"
