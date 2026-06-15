@@ -1,23 +1,112 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Chess</title>
-<link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room</title>
+    <link rel="stylesheet" href="register.css">
+
 </head>
 <body>
+    
+    <div class="container">
+        <h1><p> Two Player Chess</p></h1>
+        <button id="createRoom">Create Room</button>
 
-<h1>2 Player Chess</h1>
-<div class="outer-div"> 
-    <div>
-        <div id="turn">Turn: White</div>
-        <div id="board"></div>
+        <input
+            type="text"
+            id="roomCode"
+            placeholder="Enter Room Code"
+        >
+
+        <button id="joinRoom">Join Room</button>
+
+        <p id="roomInfo"></p>
     </div>
-    <div id="undo"></div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
-<script type="module" src="script.js"></script>
-<!-- <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script> -->
 </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.7.5/socket.io.min.js"></script>
+<script>
+
+    const token = localStorage.getItem('token');
+
+    async function isValid() {
+        try{
+
+            const res = await fetch("http://localhost:3000/validateToken", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    token
+                })
+            });
+            
+            const data = await res.json();
+            
+            if(data.verified){
+
+            }
+            else{
+                window.location.href = "login.html";
+                // console.log('else1');
+            }
+        }catch{
+            console.log('catch');
+            window.location.href = "login.html";
+        }
+    } 
+    
+    if(!token){
+        // console.log('else2');
+        window.location.href = "login.html";
+    }
+    else{
+        isValid();
+    }
+
+    const socket = io("http://localhost:3000");
+
+    let currentRoom = "";
+    let myColor = "";
+
+    document.getElementById("createRoom").addEventListener("click", () => {
+        socket.emit("create-room");
+    });
+
+    document.getElementById("joinRoom").addEventListener("click", () => {
+        const roomId =
+            document.getElementById("roomCode").value;
+
+        socket.emit(
+            "join-room",
+            roomId
+        );
+    });
+
+    socket.on("room-created", (data) => {
+        currentRoom = data.roomId;
+        myColor = data.color;
+
+        document.getElementById("roomInfo")
+        .innerText =`Room Code: ${data.roomId}, You are ${data.color}`;
+        
+        
+    });
+
+    socket.on("joined-room", (data) => {
+        currentRoom = data.roomId;
+        myColor = data.color;
+
+        document.getElementById("roomInfo")
+        .innerText =
+            `Joined Room: ${data.roomId}, You are ${data.color}`;
+    });
+
+    socket.on("game-start", () => {
+        localStorage.setItem("roomId", currentRoom);
+        localStorage.setItem("color", myColor);
+        window.location.href = "room.html";
+    });
+</script>
 </html>

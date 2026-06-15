@@ -1,6 +1,4 @@
-let game = require("./game");
-
-function updateBoard(from,to,nextTurn){
+function updateBoard(game,from,to,nextTurn){
     let board = game.state;
     let piece = board[from[0]][from[1]];
     board[from[0]][from[1]] = "";
@@ -8,7 +6,7 @@ function updateBoard(from,to,nextTurn){
     game.turn = nextTurn;
     game.state = board;
 }
-function resetBoard(){
+function resetBoard(game){
     let hold = {
         "state" : [
                     ["r", "n", "b", "q", "k", "b", "n", "r"],
@@ -28,10 +26,8 @@ function resetBoard(){
     game.mH = hold.mH;
 }
 
-function undoMove(){
-    let t = null;
-    
-    console.log(game.mH);
+function undoMove(game){
+    let t = null;    
     while(game.mH.length>0){
         if((t==null ||( t == (game.mH[game.mH.length - 1]).turn))){
 

@@ -2,12 +2,35 @@ import * as moveValidator from "./validMoves.js";
 import { isChecked , checkmate} from "./isChecked.js";
 import { moveHistory } from "./game.js";
 
+
+const roomId = localStorage.getItem("roomId");
+const myColor = localStorage.getItem("color");
+
+console.log(roomId)
+console.log(myColor)
+
+if(!roomId){
+    window.location.href = "room.html";
+}
+
 const board = document.getElementById("board")
-const undo = document.getElementById("undo")
+// const undo = document.getElementById("undo")
 const turnText = document.getElementById("turn")
 const socket = io("https://chess-124102054.onrender.com");
 // const socket = io("http://localhost:3000/");
+console.log("socket created");
 
+socket.on("connect", () => {
+
+    console.log("connected", socket.id);
+
+    socket.emit("rejoin-room", {
+        roomId,
+        color: myColor
+    });
+
+    socket.emit("get-state", roomId);
+});
 
 let selected = null
 let turn = "white"
@@ -44,18 +67,21 @@ const pieces = {
     K: "♔",
     P: "♙"
 }
-socket.on("state",(game)=>{
 
+
+socket.on("state",(game)=>{
+    console.log("STATE RECEIVED");
     state =  game.state;
     turn =  game.turn;
 
     turnText.innerText =
         "Turn: " + turn.charAt(0).toUpperCase() + turn.slice(1);
 
-    drawBoard();
+    drawBoard(state);
 
 });
-async function drawBoard() {
+
+async function drawBoard(state) {
 
     // let res = await fetch("http://localhost:3000/chess/currentState");
     // let data = await res.json();
@@ -64,59 +90,98 @@ async function drawBoard() {
 
     // turn = data.turn;
 
+    console.log("Drawing");
     console.log(state);
 
     board.innerHTML = ""
-    undo.innerHTML = ""
+    // undo.innerHTML = ""
+    if(myColor=='white'){
 
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-
-            let sq = document.createElement("div")
-            sq.classList.add("square")
-
-            if ((r + c) % 2 == 0) sq.classList.add("white")
-            else sq.classList.add("black")
-
-            sq.dataset.row = r
-            sq.dataset.col = c
-            sq.id = r + "" + c;
-
-            let piece = state[r][c]
-
-            if(piece=="K" && isChecked(r,c)) {
-                sq.classList.add("checked"); 
-                check = true;
-                checkKingPos = [r,c];
+        for (let r = 0; r < 8; r++) {
+            for (let c = 0; c < 8; c++) {
+                
+                let sq = document.createElement("div")
+                sq.classList.add("square")
+                
+                if ((r + c) % 2 == 0) sq.classList.add("white")
+                    else sq.classList.add("black")
+                
+                sq.dataset.row = r
+                sq.dataset.col = c
+                sq.id = r + "" + c;
+                
+                let piece = state[r][c]
+                
+                if(piece=="K" && isChecked(r,c)) {
+                    sq.classList.add("checked"); 
+                    check = true;
+                    checkKingPos = [r,c];
+                }
+                if(piece=="k" && isChecked(r,c)) {
+                    sq.classList.add("checked"); 
+                    check = true;
+                    checkKingPos = [r,c];
+                }
+                
+                if (piece != "") sq.textContent = pieces[piece]
+                
+                sq.addEventListener("click", clickSquare)
+                
+                board.appendChild(sq)
+                
             }
-            if(piece=="k" && isChecked(r,c)) {
-                sq.classList.add("checked"); 
-                check = true;
-                checkKingPos = [r,c];
-            }
-
-            if (piece != "") sq.textContent = pieces[piece]
-
-            sq.addEventListener("click", clickSquare)
-
-            board.appendChild(sq)
-
         }
     }
-
-    if(moveHistory.length>0){
-        let undoButton = document.createElement("button");
-        undoButton.innerText = "Undo";
-        undoButton.classList.add("undo-button");
-        undoButton.addEventListener("click",prevMove);
-        undo.append(undoButton);
+    else{
+        for (let r = 7; r >=0; r--) {
+            for (let c = 7; c>=0; c--) {
+                
+                let sq = document.createElement("div")
+                sq.classList.add("square")
+                
+                if ((r + c) % 2 == 0) sq.classList.add("white")
+                    else sq.classList.add("black")
+                
+                sq.dataset.row = r
+                sq.dataset.col = c
+                sq.id = r + "" + c;
+                
+                let piece = state[r][c]
+                
+                if(piece=="K" && isChecked(r,c)) {
+                    sq.classList.add("checked"); 
+                    check = true;
+                    checkKingPos = [r,c];
+                }
+                if(piece=="k" && isChecked(r,c)) {
+                    sq.classList.add("checked"); 
+                    check = true;
+                    checkKingPos = [r,c];
+                }
+                
+                if (piece != "") sq.textContent = pieces[piece]
+                
+                sq.addEventListener("click", clickSquare)
+                
+                board.appendChild(sq)
+                
+            }
+        }
     }
+        
+    // if(moveHistory.length>0){
+    //     let undoButton = document.createElement("button");
+    //     undoButton.innerText = "Undo";
+    //     undoButton.classList.add("undo-button");
+    //     undoButton.addEventListener("click",prevMove);
+    //     undo.append(undoButton);
+    // }
     
-    let restart = document.createElement("button");
-    restart.innerText = "Restart";
-    restart.classList.add("restart-button");
-    restart.addEventListener("click",reset);
-    undo.append(restart);
+    // let restart = document.createElement("button");
+    // restart.innerText = "Restart";
+    // restart.classList.add("restart-button");
+    // restart.addEventListener("click",reset);
+    // undo.append(restart);
 
     if(checkKingPos!=null)
     console.log((state[checkKingPos[0]][checkKingPos[1]]==state[checkKingPos[0]][checkKingPos[1]].toUpperCase()));
@@ -168,7 +233,8 @@ async function drawBoard() {
 }
 
 function clickSquare(e) {
-
+    if(myColor=='white'&&turn=='black') return;
+    if(myColor=='black'&&turn=='white') return;
     let r = parseInt(e.target.dataset.row)
     let c = parseInt(e.target.dataset.col)
     
@@ -400,6 +466,7 @@ function canCastle(r,c,rc){
         // turn = data.turn;
 
         socket.emit("move",{
+            roomId,
             from,
             to,
             t,

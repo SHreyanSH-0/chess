@@ -1,4 +1,3 @@
-import { state, check ,canBlackCastleLong,canBlackCastleShort,canWhiteCastleLong,canWhiteCastleShort,canCastle} from "./script.js";
 import { isChecked } from "./isChecked.js";
 function pawnMove(r,c){
     let piece = state[r][c];
