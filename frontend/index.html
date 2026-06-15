@@ -32,7 +32,7 @@
     async function isValid() {
         try{
 
-            const res = await fetch("http://localhost:3000/validateToken", {
+            const res = await fetch("https://chess-124102054.onrender.com/validateToken", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json"
@@ -65,7 +65,7 @@
         isValid();
     }
 
-    const socket = io("http://localhost:3000");
+    const socket = io("https://chess-124102054.onrender.com");
 
     let currentRoom = "";
     let myColor = "";
