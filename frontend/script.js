@@ -358,7 +358,7 @@ function clickSquare(e) {
                 if(isChecked(wk[0],wk[1])){
                     state[r][c] = tar;
                     state[from.r][from.c] = piece;
-                    drawBoard();
+                    drawBoard(state);
                     return;
                 }
             }
@@ -366,7 +366,7 @@ function clickSquare(e) {
                 if(isChecked(bk[0],bk[1])){
                     state[r][c] = tar;
                     state[from.r][from.c] = piece;
-                    drawBoard();
+                    drawBoard(state);
                     return;
                 }
             }
