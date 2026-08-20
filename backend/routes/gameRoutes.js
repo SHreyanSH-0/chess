@@ -1,9 +1,9 @@
-const express = require("express");
-const router = express.Router();
+// import express from "express";
+// const router = express.Router();
 
-const routes = require("../controllers/gameControllers");
+// import routes from "../controllers/gameControllers.js";
 
-router.get("/currentState",routes.currentState);
-router.post("/update",routes.update);
+// router.get("/currentState",routes.currentState);
+// router.post("/update",routes.update);
 
-module.exports = router;
+// export default router;

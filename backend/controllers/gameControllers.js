@@ -1,5 +1,5 @@
-let game = require("../gameBoard/game");
-let {updateBoard,undoMove,resetBoard} = require("../gameBoard/updateBoard")
+// let game = require("../gameBoard/game");
+import {updateBoard,undoMove,resetBoard} from "../gameBoard/updateBoard"
 
 function currentState(req,res){
     try{
@@ -29,4 +29,4 @@ function update(req,res){
 }
 
 
-module.exports = {currentState,update};
+export {currentState,update};

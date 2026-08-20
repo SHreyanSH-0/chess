@@ -1,8 +1,8 @@
-const mongoose = require("mongoose");
-const bcrypt = require("bcryptjs");
-const jwt = require("jsonwebtoken");
-const User = require("../models/user")
-const dotenv = require("dotenv");
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+import User from "../models/user.js"
+import dotenv from "dotenv";
 dotenv.config();
 
 async function register(req,res){
@@ -97,4 +97,4 @@ function validateToken(req,res){
 
 
 
-module.exports = {register,login,validateToken};
+export {register,login,validateToken};

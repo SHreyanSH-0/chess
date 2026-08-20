@@ -1,5 +1,5 @@
 import { isChecked } from "./isChecked.js";
-function pawnMove(r,c){
+function pawnMove(state,r,c){
     let piece = state[r][c];
     const moves = [];
     if(piece === piece.toUpperCase()){
@@ -46,7 +46,7 @@ function pawnMove(r,c){
     return moves;
 }
 
-function rookMove(r,c){
+function rookMove(state,r,c){
     let moves = []
     for(let i = r + 1;i<=7;i++){
         if(state[i][c] == "") moves.push([i,c]);
@@ -95,7 +95,7 @@ function rookMove(r,c){
     return moves;
 }   
 
-function knightMove(r,c){
+function knightMove(state,r,c){
     let moves = [];
     let cords = [[r+2,c+1],[r+2,c-1],[r+1,c+2],[r-1,c+2],[r+1,c-2],[r-1,c-2],[r-2,c+1],[r-2,c-1]];
 
@@ -110,7 +110,7 @@ function knightMove(r,c){
     return moves;
 }
 
-function bishopMove(r,c){
+function bishopMove(state,r,c){
     let moves = [];
     let bis = state[r][c];
     for(let i = r + 1, j = c + 1; i>=0&&j>=0&& i<=7&&j<=7;i++,j++){
@@ -152,18 +152,18 @@ function bishopMove(r,c){
     return moves;
 }
 
-function queenMove(r,c){
-    let moves = rookMove(r,c).concat( bishopMove(r,c));
+function queenMove(state,r,c){
+    let moves = rookMove(state,r,c).concat(bishopMove(state,r,c));
     return moves;
 }
 
-function kingMove(r,c){
+function kingMove(state,r,c){
     let cords = [[r-1,c-1],[r-1,c],[r-1,c+1],[r+1,c-1],[r+1,c],[r+1,c+1],[r,c-1],[r,c+1]];
     let moves = [];
     let piece = state[r][c];
 
     if(piece=="k"){
-        if(canBlackCastleLong&&canCastle(r,c,0)){
+        if(canBlackCastleLong&&canCastle(state,r,c,0)){
             state[0][2] = "k";
             state[0][3] = "r";
             state[0][0] = "";
@@ -176,12 +176,12 @@ function kingMove(r,c){
             state[0][1] = "";
             state[0][4] = "k";
         }
-        if(canBlackCastleShort&&canCastle(r,c,7)) {
+        if(canBlackCastleShort&&canCastle(state,r,c,7)) {
             state[0][6] = "k";
             state[0][5] = "r";
             state[0][7] = "";
             state[0][4] = "";
-            if(!isChecked(0,6)) moves.push([0,6]);
+            if(!isChecked(state,0,6)) moves.push([0,6]);
             state[0][6] = "";
             state[0][5] = "";
             state[0][7] = "r";
@@ -189,25 +189,25 @@ function kingMove(r,c){
         }
     }
     else if(piece == "K"){
-        if(canWhiteCastleLong&&canCastle(r,c,0)) {
+        if(canWhiteCastleLong&&canCastle(state,r,c,0)) {
             state[7][2] = "K";
             state[7][3] = "R";
             state[7][0] = "";
             state[7][1] = "";
             state[7][4] = "";
-            if(!isChecked(7,2)) moves.push([7,2]);
+            if(!isChecked(state,7,2)) moves.push([7,2]);
             state[7][2] = "";
             state[7][3] = "";
             state[7][0] = "R";
             state[7][1] = "";
             state[7][4] = "K";
         }
-        if(canWhiteCastleShort&&canCastle(r,c,7)) {
+        if(canWhiteCastleShort&&canCastle(state,r,c,7)) {
             state[7][6] = "K";
             state[7][5] = "R";
             state[7][7] = "";
             state[7][4] = "";
-            if(!isChecked(7,6)) moves.push([7,6]);
+            if(!isChecked(state,7,6)) moves.push([7,6]);
             state[7][6] = "";
             state[7][5] = "";
             state[7][7] = "R";

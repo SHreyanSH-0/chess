@@ -1,7 +1,7 @@
-let state = require("./game.js");
-let legalMoves = require("./validMoves.js")
+// let state = require("./game.js");
+import * as legalMoves from "./validMoves.js";
 
-function pawnMove(r,c){
+function pawnMove(state,r,c){
     let piece = state[r][c];
     
     if(piece=="K"){
@@ -19,7 +19,7 @@ function pawnMove(r,c){
     return false;
 }
 
-function rookMove(r,c){
+function rookMove(state,r,c){
     let piece = state[r][c];
 
     for(let i = r + 1;i<=7;i++){
@@ -72,7 +72,7 @@ function rookMove(r,c){
     return false;
 }   
 
-function knightMove(r,c){
+function knightMove(state,r,c){
     let piece = state[r][c];
     let cords = [[r+2,c+1],[r+2,c-1],[r+1,c+2],[r-1,c+2],[r+1,c-2],[r-1,c-2],[r-2,c+1],[r-2,c-1]];
 
@@ -90,7 +90,7 @@ function knightMove(r,c){
     return false;
 }
 
-function bishopMove(r,c){
+function bishopMove(state,r,c){
     let piece = state[r][c];
     for(let i = r + 1, j = c + 1; i>=0&&j>=0&& i<=7&&j<=7;i++,j++){
         let tar = state[i][j];
@@ -131,11 +131,11 @@ function bishopMove(r,c){
     return false;
 }
 
-function isChecked(r,c){
-    return pawnMove(r,c) || knightMove(r,c) || rookMove(r,c) || bishopMove(r,c);
+function isChecked(state,r,c){
+    return pawnMove(state,r,c) || knightMove(state,r,c) || rookMove(state,r,c) || bishopMove(state,r,c);
 }
 
-function checkmate(white){
+function checkmate(state,white){
 
     let moves = [];
 

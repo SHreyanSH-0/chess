@@ -1,10 +1,10 @@
-const express = require("express");
-const cors = require("cors");
-const dotenv = require("dotenv");
+import express from "express";
+import cors from "cors";
+import dotenv from "dotenv";
 dotenv.config();
 
-const {Server} = require("socket.io");
-const http = require("http");
+import {Server} from "socket.io";
+import http from "http";
 
 let game = {
     "state" : [
@@ -20,9 +20,9 @@ let game = {
     "turn" : "white",
     "mH" : [],
 }
-let {updateBoard,undoMove,resetBoard} = require("./gameBoard/updateBoard")
+import {updateBoard,undoMove,resetBoard} from "./gameBoard/updateBoard.js"
 
-const mongoose = require("mongoose");
+import mongoose from "mongoose";
 
 
 Promise.resolve(mongoose.connect(process.env.mongo_url).then(()=>console.log("DB Connected"))).catch(err=>console.log(err));
@@ -180,18 +180,22 @@ io.on("connection",(socket)=>{
             return;
         }
 
-        updateBoard(
+        if(updateBoard(
             room.game,
             data.from,
             data.to,
             data.t
-        );
-
-        room.game.mH.push(data.currentMove);
-
-        io.to(data.roomId).emit("state",
-            room.game
-        );
+        )){
+            
+            room.game.mH.push(data.currentMove);
+            
+            io.to(data.roomId).emit("state",
+                room.game
+            );   
+        }
+        else{
+            io.to(data.roomId).emit("error-message", "Invalid move");
+        }
     });
 
     socket.on("get-state", (roomId) => {
@@ -221,11 +225,11 @@ io.on("connection",(socket)=>{
     });
 });
 
-const gameRoutes = require("./routes/gameRoutes");
+// import gameRoutes from "./routes/gameRoutes.js";
 
-app.use("/game", gameRoutes);
+// app.use("/game", gameRoutes);
 
-const userRoutes = require("./routes/authRoutes");
+import userRoutes from "./routes/authRoutes.js";
 
 app.use("/", userRoutes);
 

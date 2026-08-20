@@ -1,11 +1,56 @@
+import {pawnMove,rookMove,knightMove,bishopMove,queenMove,kingMove} from "./validMoves.js";
+
 function updateBoard(game,from,to,nextTurn){
+
+    if(!validateMove(game,from,to)){
+        return false;
+    }
+
     let board = game.state;
     let piece = board[from[0]][from[1]];
     board[from[0]][from[1]] = "";
     board[to[0]][to[1]] = piece;
     game.turn = nextTurn;
     game.state = board;
+    return true;
 }
+
+function validateMove(game,from,to){
+
+    if(from[0]<0 || from[0]>7 || from[1]<0 || from[1]>7 || to[0]<0 || to[0]>7 || to[1]<0 || to[1]>7){
+        return false;
+    }
+
+    let board = game.state;
+    let piece = board[from[0]][from[1]];
+    if(piece == "") return false;
+
+    let validMoves = [];
+    switch(piece.toLowerCase()){
+        case "p":
+            validMoves = pawnMove(board,from[0],from[1]);
+            break;
+        case "r":
+            validMoves = rookMove(board,from[0],from[1]);
+            break;
+        case "n":
+            validMoves = knightMove(board,from[0],from[1]);
+            break;
+        case "b":
+            validMoves = bishopMove(board,from[0],from[1]);
+            break;
+        case "q":
+            validMoves = queenMove(board,from[0],from[1]);
+            break;
+        case "k":
+            validMoves = kingMove(board,from[0],from[1]);
+            break;
+    }
+
+    return validMoves.some(move => move[0] === to[0] && move[1] === to[1]);
+}
+
+
 function resetBoard(game){
     let hold = {
         "state" : [
@@ -41,4 +86,4 @@ function undoMove(game){
     }
 }
 
-module.exports = {updateBoard,undoMove,resetBoard}
+export {updateBoard,undoMove,resetBoard};

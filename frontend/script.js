@@ -81,6 +81,11 @@ socket.on("state",(game)=>{
 
 });
 
+socket.on("invalid-move",()=>{
+    alert("Invalid move");
+    socket.emit("get-state", roomId);
+});
+
 async function drawBoard(state) {
 
     // let res = await fetch("http://localhost:3000/chess/currentState");
